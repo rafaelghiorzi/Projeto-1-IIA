@@ -3,10 +3,7 @@ import streamlit as st
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
-import database
 import filtros
-
-database.inicializar_banco() 
 
 if 'dataframes_carregados' not in st.session_state:
     st.session_state.df_produtores, \
@@ -108,5 +105,6 @@ if not df_para_exibir.empty:
 else:
     st.info("Nenhum produtor encontrado com os filtros atuais.")
 
+st.subheader("Informações dos produtos da busca")
 
 st.sidebar.info("IIA - Rafael Dias Ghiorzi - 2025")
