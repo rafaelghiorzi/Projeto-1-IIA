@@ -3,3 +3,4 @@ projeto/db.sqlite3
 *.csv
 __pycache__/
 *.pyc
+*.db
