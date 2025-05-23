@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, Session, declarative_base
 import pandas as pd
 import random
 from random import randint
+from faker import Faker
 
 Base = declarative_base()
 
@@ -144,24 +145,23 @@ def importar_produtores(session, produtos_dict):
     return produtores
 
 # Função para criar usuários aleatórios
-def criar_usuarios(session, num_usuarios=10):
+def criar_usuarios(session, num_usuarios=30):
     print(f"Criando {num_usuarios} usuários aleatórios...")
-    nomes = ["Ana Silva", "João Oliveira", "Maria Santos", "Pedro Costa", 
-            "Carla Souza", "Lucas Ferreira", "Julia Lima", "Marcos Almeida",
-            "Fernanda Castro", "Rafael Pereira", "Patricia Gomes", "Gabriel Dias",
-            "Carolina Martins", "Bruno Cardoso", "Mariana Ribeiro"]
-    
-    senhas = ["senha123", "123456", "abcdef", "qwerty", "senha!@#"]
-    
+    fake = Faker('pt_BR')
+
     usuarios = []
     for i in range(num_usuarios):
-        nome = random.choice(nomes) + f" {i+1}"
-        senha = random.choice(senhas)
-        
+        nome = fake.name()
+        senha = fake.password()
         usuario = Usuario(nome=nome, senha=senha)
         session.add(usuario)
         usuarios.append(usuario)
-    
+
+    # Adiciona usuario padrão (eu)
+    usuario_padrao = Usuario(nome="rafael", senha="123")
+    session.add(usuario_padrao)
+    usuarios.append(usuario_padrao)
+
     session.flush()
     print(f"Criados {len(usuarios)} usuários")
     return usuarios
@@ -174,7 +174,7 @@ def criar_avaliacoes(session, usuarios, produtores):
     # Cada usuário avalia entre 1 e 5 produtores aleatórios
     for usuario in usuarios:
         # Escolhe um número aleatório de produtores para avaliar (entre 3 e 8)
-        num_avaliacoes = randint(3, min(8, len(produtores)))
+        num_avaliacoes = randint(6, min(12, len(produtores)))
         produtores_para_avaliar = random.sample(produtores, num_avaliacoes)
         
         for produtor in produtores_para_avaliar:
@@ -202,7 +202,7 @@ def popular_banco():
         produtores = importar_produtores(session, produtos)
         
         # Cria usuários e avaliações aleatórias
-        usuarios = criar_usuarios(session, 15)
+        usuarios = criar_usuarios(session, 200)
         criar_avaliacoes(session, usuarios, produtores)
         
         # Atualiza as notas médias dos produtores
@@ -218,8 +218,6 @@ def popular_banco():
 def mostrar_estatisticas():
     engine = create_engine('sqlite:///db.db')
     with Session(engine) as session:
-        from sqlalchemy.sql import func
-        from sqlalchemy import text
         
         num_produtos = session.query(Produto).count()
         num_produtores = session.query(Produtor).count()
@@ -231,30 +229,7 @@ def mostrar_estatisticas():
         print(f"Produtores: {num_produtores}")
         print(f"Usuários: {num_usuarios}")
         print(f"Avaliações: {num_avaliacoes}")
-        
-        # Top 5 produtores com melhores avaliações
-        top_produtores = session.query(Produtor).order_by(Produtor.nota.desc()).limit(5).all()
-        print("\nTop 5 produtores com melhores avaliações:")
-        for i, produtor in enumerate(top_produtores):
-            print(f"{i+1}. {produtor.nome} (Nota: {produtor.nota:.2f}) - {len(produtor.produtos)} produtos")
-        
-        # Top 5 produtores com mais produtos
-        top_por_produtos = session.query(Produtor).join(produtor_produto).group_by(Produtor.id).order_by(
-            func.count(produtor_produto.c.produto_id).desc()).limit(5).all()
-        
-        print("\nTop 5 produtores com mais produtos:")
-        for i, produtor in enumerate(top_por_produtos):
-            print(f"{i+1}. {produtor.nome}: {len(produtor.produtos)} produtos")
-        
-        # Produtos mais comuns
-        produtos_populares = session.query(
-            Produto.nome, 
-            func.count(produtor_produto.c.produtor_id).label('contagem')
-        ).join(produtor_produto).group_by(Produto.nome).order_by(text('contagem DESC')).limit(5).all()
-        
-        print("\nTop 5 produtos mais oferecidos:")
-        for produto_nome, contagem in produtos_populares:
-            print(f"- {produto_nome}: {contagem} produtores")
+        print("==============================\n")
 
 # Exemplo de uso
 if __name__ == "__main__":
