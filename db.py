@@ -34,7 +34,8 @@ class Produto(Base):
     sazonalidade = Column(String(50))
     descricao = Column(String(200))
     kcal_por_100g = Column(Integer)
-    
+    preco_por_100g = Column(Float, nullable=False, default=0.0)  # Preço por 100g
+
     # Relacionamento com Produtor
     produtores = relationship("Produtor", secondary=produtor_produto, back_populates="produtos")
     
@@ -97,12 +98,14 @@ def importar_produtos(session):
     for _, row in df.iterrows():
         # Convertendo kcal/100g para inteiro
         kcal = int(float(row['kcal/100g'])) if not pd.isna(row['kcal/100g']) else 0
+        preco = float(row['Preco/100g']) if not pd.isna(row['Preco/100g']) else 0.0
         
         produto = Produto(
             nome=row['Nome'],
             sazonalidade=row['Sazonalidade'],
             descricao=row['Descricao'],
-            kcal_por_100g=kcal
+            kcal_por_100g=kcal,
+            preco_por_100g=preco
         )
         session.add(produto)
         produtos[row['Nome']] = produto

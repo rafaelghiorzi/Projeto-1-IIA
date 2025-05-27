@@ -1,35 +1,35 @@
-Nome,Sazonalidade,Descricao,kcal/100g
-Abacate,Outono,Fruta rica em gorduras boas e fibras.,160
-Abóbora,Inverno,"Legume usado em sopas e purês, rico em vitamina A.",26
-Abobrinha,Verão,"Versátil, ótima para refogados e grelhados.",17
-Acelga,Outono,Folha crocante e levemente amarga.,19
-Alface,Primavera,"Folha leve, muito usada em saladas.",15
-Alho,Inverno,Condimento essencial com propriedades antimicrobianas.,149
-Batata doce,Inverno,Tubérculo doce e energético.,86
-Beterraba,Inverno,"Raiz de cor intensa, rica em antioxidantes.",43
-Brócolis,Inverno,Vegetal verde rico em fibras e vitamina C.,34
-Cebola,Ano todo,"Base de muitos pratos, sabor marcante.",40
-Cebolinha,Ano todo,Erva usada para temperar pratos diversos.,30
-Cenoura,Ano todo,"Raiz alaranjada, rica em betacaroteno.",41
-Chuchu,Verão,"Leve e com sabor suave, ótimo para dietas.",19
-Coentro,Primavera,"Erva aromática, muito usada em peixes e molhos.",23
-Couve-flor,Inverno,"Flor comestível, ótima em gratinados.",25
-Couve,Ano todo,"Folha rica em ferro, usada refogada.",49
-Espinafre,Outono,Folha verde escura rica em nutrientes.,23
-Goiaba,Verão,Fruta tropical doce e rica em vitamina C.,68
-Hortelã,Primavera,Erva aromática usada em chás e temperos.,70
-Inhame,Outono,"Raiz usada em pratos típicos, energética.",118
-Limão,Ano todo,Fruta cítrica rica em vitamina C.,29
-Manjericão,Verão,Erva aromática com sabor intenso.,23
-Maracujá,Verão,Fruta tropical azeda e refrescante.,97
-Milho verde,Verão,Grão verde usado cozido ou em saladas.,86
-Morango,Inverno,Fruta vermelha rica em antioxidantes.,32
-Pepino,Verão,Legume refrescante e com alto teor de água.,15
-Pimentão,Verão,"Colorido e versátil, ótimo em saladas.",20
-Repolho verde,Inverno,Folha densa usada em cozidos.,25
-Repolho roxo,Inverno,Variedade roxa com antioxidantes extras.,31
-Salsa,Ano todo,Erva fina usada em temperos e molhos.,36
-Tangerina,Inverno,Fruta cítrica doce e suculenta.,53
-Tomate,Verão,Fruto suculento usado em saladas e molhos.,18
-Vagem,Primavera,Vagem verde rica em fibras.,31
-Banana,Ano todo,Fruta tropical rica em potássio.,89
+Nome,Sazonalidade,Descricao,kcal/100g,Preco/100g
+Abacate,Outono,Fruta rica em gorduras boas e fibras.,160,1.80
+Abóbora,Inverno,"Legume usado em sopas e purês, rico em vitamina A.",26,0.80
+Abobrinha,Verão,"Versátil, ótima para refogados e grelhados.",17,1.20
+Acelga,Outono,Folha crocante e levemente amarga.,19,1.50
+Alface,Primavera,"Folha leve, muito usada em saladas.",15,1.00
+Alho,Inverno,Condimento essencial com propriedades antimicrobianas.,149,3.00
+Batata doce,Inverno,Tubérculo doce e energético.,86,0.90
+Beterraba,Inverno,"Raiz de cor intensa, rica em antioxidantes.",43,0.90
+Brócolis,Inverno,Vegetal verde rico em fibras e vitamina C.,34,2.00
+Cebola,Ano todo,"Base de muitos pratos, sabor marcante.",40,1.00
+Cebolinha,Ano todo,Erva usada para temperar pratos diversos.,30,2.50
+Cenoura,Ano todo,"Raiz alaranjada, rica em betacaroteno.",41,0.80
+Chuchu,Verão,"Leve e com sabor suave, ótimo para dietas.",19,0.70
+Coentro,Primavera,"Erva aromática, muito usada em peixes e molhos.",23,2.00
+Couve-flor,Inverno,"Flor comestível, ótima em gratinados.",25,2.20
+Couve,Ano todo,"Folha rica em ferro, usada refogada.",49,1.20
+Espinafre,Outono,Folha verde escura rica em nutrientes.,23,2.50
+Goiaba,Verão,Fruta tropical doce e rica em vitamina C.,68,1.80
+Hortelã,Primavera,Erva aromática usada em chás e temperos.,70,3.00
+Inhame,Outono,"Raiz usada em pratos típicos, energética.",118,1.20
+Limão,Ano todo,Fruta cítrica rica em vitamina C.,29,1.00
+Manjericão,Verão,Erva aromática com sabor intenso.,23,3.00
+Maracujá,Verão,Fruta tropical azeda e refrescante.,97,2.50
+Milho verde,Verão,Grão verde usado cozido ou em saladas.,86,1.50
+Morango,Inverno,Fruta vermelha rica em antioxidantes.,32,2.80
+Pepino,Verão,Legume refrescante e com alto teor de água.,15,1.00
+Pimentão,Verão,"Colorido e versátil, ótimo em saladas.",20,2.00
+Repolho verde,Inverno,Folha densa usada em cozidos.,25,0.90
+Repolho roxo,Inverno,Variedade roxa com antioxidantes extras.,31,1.20
+Salsa,Ano todo,Erva fina usada em temperos e molhos.,36,2.50
+Tangerina,Inverno,Fruta cítrica doce e suculenta.,53,1.80
+Tomate,Verão,Fruto suculento usado em saladas e molhos.,18,1.50
+Vagem,Primavera,Vagem verde rica em fibras.,31,2.00
+Banana,Ano todo,Fruta tropical rica em potássio.,89,1.20

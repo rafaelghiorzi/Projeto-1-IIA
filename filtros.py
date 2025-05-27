@@ -13,6 +13,65 @@ def get_produtos():
         produtos = [produto[0] for produto in produtos]
         return produtos
 
+def get_produtores():
+    with Session(engine) as session:
+        produtores = session.query(Produtor.nome).all()
+        produtores = [produtor[0] for produtor in produtores]
+        return produtores
+
+def get_produtor_produtos(produtor_nome: str):
+    """Retorna os produtos de um produtor específico"""
+    with Session(engine) as session:
+        from db import produtor_produto
+        
+        produtos = (
+            session.query(Produto)
+            .join(produtor_produto, Produto.id == produtor_produto.c.produto_id)
+            .join(Produtor, produtor_produto.c.produtor_id == Produtor.id)
+            .filter(Produtor.nome == produtor_nome)
+            .all()
+        )
+        
+        return produtos
+
+def get_avaliacao(produtor_nome: str):
+    """Retorna as avaliações de um produtor específico."""
+    with Session(engine) as session:
+        avaliacoes = (
+            session.query(Produtor.nome, Usuario.nome, Avaliacao.nota)
+            .join(Produtor, Avaliacao.produtor_id == Produtor.id)
+            .join(Usuario, Avaliacao.usuario_id == Usuario.id)
+            .filter(Produtor.nome == produtor_nome)
+            .all()
+        )
+        
+        # Converte para o formato [(nota, usuario.nome)]
+        resultado = []
+        for produtor_nome, usuario_nome, nota in avaliacoes:
+            resultado.append((usuario_nome, nota))
+        return resultado
+
+def get_avaliacao_usuario():
+    """Retorna todas as avaliações do usuário como um dicionário {produtor: nota}"""
+    with Session(engine) as session:
+        # Busca o usuário
+        usuario = session.query(Usuario).filter(Usuario.nome == "rafael" and Usuario.senha ==  "123").first()
+
+        if usuario is None:
+            return {}
+
+        avaliacoes = (
+            session.query(Avaliacao, Produtor.nome)
+            .join(Produtor, Avaliacao.produtor_id == Produtor.id)
+            .filter(Avaliacao.usuario_id == usuario.id)
+            .all()
+        )
+
+        # Constrói o dicionário diretamente
+        return {produtor_nome: avaliacao.nota for avaliacao, produtor_nome in avaliacoes}
+
+
+
 def get_estacao():
     """Retorna a estação atual com base no mês."""
     mes = time.localtime().tm_mon
@@ -69,9 +128,9 @@ def filtro_preferencia(preferencia: list):
 
         return produtores
 
-def filtro_sazonalidade(estacao: str = None):
+def filtro_sazonalidade(estacao: str = ""):
     """Retorna os produtos disponíveis na estação atual."""
-    if estacao is None:
+    if estacao == "":
         # Se a estação não for passada, pega a estação atual
         estacao = get_estacao()
 
@@ -172,7 +231,7 @@ def encontrar_vizinhos(usuario: Usuario, modelo: NearestNeighbors, matriz: pd.Da
 
     return vizinhos_distancia
 
-def recomendar_produtos(top_n=10, nota_minima=3):
+def recomendar_produtores(top_n=10, nota_minima=3):
     """Recomenda produtores com base nas avaliações do usuário."""
     with Session(engine) as session:
         # Utilizando usuário padrão
