@@ -163,7 +163,7 @@ def criar_matriz():
     with Session(engine) as session:
         # Busca todos os dados de avaliações
         query = session.query(Avaliacao.usuario_id, Avaliacao.produtor_id, Avaliacao.nota)
-        avaliacoes_df = pd.read_sql(query.statement, session.bind)
+        avaliacoes_df = pd.read_sql(query.statement, session.connection())
 
         if avaliacoes_df.empty:
             print("Nenhuma avaliação encontrada.")
