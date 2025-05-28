@@ -195,27 +195,55 @@ def recomendar_produtores():
     avaliacoes_usuario = matriz.iloc[idx_usuario].to_numpy().reshape(1, -1)
     
     # knn retorna a distancia dos vizinhos [[]] e o indice deles na matriz [[]]
-    distancias, vizinhos = modelo.kneighbors(avaliacoes_usuario, n_neighbors=5)
+    _ , vizinhos_k = modelo.kneighbors(avaliacoes_usuario, n_neighbors=20)
 
     # inverte o usuarios_idx para encontrar o usuario com base no indice
     usuarios_idx = {value: key for key, value in usuarios_idx.items()}
-    vizinho_distancia: list[tuple[int, float]] = []
 
+    vizinhos = []
     # encontrar os vizinhos para colocar na lista
-    for i in range(1, len(vizinhos[0])):
-        idx = vizinhos[0][i]
+    for i in range(1, len(vizinhos_k[0])):
+        idx = vizinhos_k[0][i]
         id = usuarios_idx.get(idx)
-        distancia = distancias[0][i]
 
         if id is not None:
-            vizinho_distancia.append((id, distancia))
+            vizinhos.append(id)
 
-    vizinho_distancia.sort(key=lambda x: x[1])
+    vizinhos = [id for id in vizinhos]
 
-    # ===============================================
+    print(vizinhos)
+
+    # ====================================================
     # Com a lista de vizinhos ordenada e feita, encontrar
     # os vizinhos, seus produtores avaliados e pegar os que
-    # o usuário não avaliou mas tem uma nota boa para recomendar
+    # o usuário não avaliou e tem uma nota boa para recomendar
+
+    # encontrar os produtores dos vizinhos
+    produtores = []
+    with Session(engine) as session:    
+        for id in vizinhos:
+            avaliacoes = session.query(Avaliacao.produtor_id).filter(Avaliacao.usuario_id == id).all()
+            # Adicionar os ids na lista de produtores
+            produtores.extend(aval[0] for aval in avaliacoes)
+            
+        # pegar os produtores avaliados pelo usuário
+        produtores_usuario = session.query(Avaliacao.produtor_id).filter(Avaliacao.usuario_id == usuario.id).all()
+        produtores_usuario = [produtor[0] for produtor in produtores_usuario]
+
+        produtores_finais = [produtor for produtor in produtores if produtor not in produtores_usuario]
+        # remover duplicados
+        produtores_finais = list(set(produtores_finais))
+
+        recomendacoes = session.query(Produtor).filter(Produtor.id.in_(produtores_finais)).all()
+        # pegar apenas os com nota maior que 3
+        produtores_finais = []
+        for produtor in recomendacoes:
+            avg_nota = session.query(func.avg(Avaliacao.nota)).filter(Avaliacao.produtor_id == produtor.id).scalar()
+            if avg_nota is not None and avg_nota >= 3:
+                produtores_finais.append(produtor)
+
+        print(len(produtores_finais), "produtores recomendados")
+        return produtores_finais[:10]  # Retorna os 10 primeiros produtores recomendados
 
 
 if __name__ == "__main__":

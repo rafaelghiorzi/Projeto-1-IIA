@@ -1,12 +1,8 @@
 import folium
 import pandas as pd
 import streamlit as st
+from back import *
 from streamlit_folium import st_folium
-
-# Presumo que você tenha os módulos 'db' e 'filtros' no mesmo diretório
-# ou instalados no seu ambiente.
-import filtros
-# import db # Se o módulo db for utilizado diretamente aqui, senão filtros.py o utiliza.
 
 # ==================== INICIALIZAÇÃO DO SESSION STATE ====================
 # Garante que as variáveis de estado da sessão existam.
@@ -89,12 +85,12 @@ def pagina_filtros_e_mapa():
             st.session_state.user_lat = user_lat_input
             st.session_state.user_lon = user_lon_input
         
-        lista_produtos_disponiveis = filtros.get_produtos()
+        lista_produtos_disponiveis = get_produtos()
         with st.container(border=True):
             st.markdown("##### Filtro por preferência de produtos 🍎")
             produtos_selecionados = st.multiselect("Quais produtos você procura?", options=lista_produtos_disponiveis, key="produtos_p1")
 
-        estacao_atual = filtros.get_estacao()
+        estacao_atual = get_estacao() # Obtém a estação atual
         with st.container(border=True):
             st.markdown("##### Filtrar por sazonalidade 🍂")
             st.caption(f"Estação atual: {estacao_atual}")
@@ -102,18 +98,19 @@ def pagina_filtros_e_mapa():
 
     # ============== Aplicação dos filtros! ==============
     # Sempre começa com o filtro de distância
-    produtores_base = filtros.filtro_distancia(st.session_state.user_lat, st.session_state.user_lon, raio)
-    
+    produtores_base = filtro_distancia(st.session_state.user_lat, st.session_state.user_lon, raio)
+
     produtores_para_exibir = list(produtores_base) # Copia para manipulação
 
     if st.session_state.get('recomendar_page1', False): # Verifica o estado do checkbox
         # Gera ou obtém recomendações
-        recomendacoes = filtros.recomendar_produtores(top_n=5, nota_minima=3) # Ajuste parâmetros conforme necessário
+        recomendacoes = recomendar_produtores() # Ajuste parâmetros conforme necessário
         st.session_state.recomendados_lista = recomendacoes
-        
-        recomendacoes_ids = [prod.id for prod in st.session_state.recomendados_lista]
-        # Remove recomendados da lista principal para evitar duplicidade no mapa se mostrados com cores diferentes
-        produtores_para_exibir = [p for p in produtores_para_exibir if p.id not in recomendacoes_ids]
+
+        if st.session_state.recomendados_lista:
+            recomendacoes_ids = [prod.id for prod in st.session_state.recomendados_lista]
+            # Remove recomendados da lista principal para evitar duplicidade no mapa se mostrados com cores diferentes
+            produtores_para_exibir = [p for p in produtores_para_exibir if p.id not in recomendacoes_ids]
     else:
         # Se o checkbox não estiver marcado, limpa as recomendações da sessão (para esta página)
         # ou mantém as anteriores se essa for a lógica desejada para Page 2.
@@ -121,12 +118,12 @@ def pagina_filtros_e_mapa():
         pass # st.session_state.recomendados_lista permanece como estava ou é limpa se necessário
 
     if produtos_selecionados:
-        produtores_preferencia = filtros.filtro_preferencia(produtos_selecionados)
+        produtores_preferencia = filtro_preferencia(produtos_selecionados)
         ids_preferencia = [p.id for p in produtores_preferencia]
         produtores_para_exibir = [p for p in produtores_para_exibir if p.id in ids_preferencia]
 
     if usar_filtro_sazonalidade:
-        produtores_sazonalidade = filtros.filtro_sazonalidade()
+        produtores_sazonalidade = filtro_sazonalidade()
         ids_sazonalidade = [p.id for p in produtores_sazonalidade]
         produtores_para_exibir = [p for p in produtores_para_exibir if p.id in ids_sazonalidade]
 
@@ -202,7 +199,7 @@ def pagina_recomendacoes():
     # Botão para forçar a atualização das recomendações
     if st.button("Buscar/Atualizar Recomendações"):
         with st.spinner("Buscando recomendações..."):
-            st.session_state.recomendados_lista = filtros.recomendar_produtores(top_n=10, nota_minima=3) # Parâmetros podem ser diferentes para esta página
+            st.session_state.recomendados_lista = recomendar_produtores() # Parâmetros podem ser diferentes para esta página
 
     if not st.session_state.recomendados_lista:
         st.info("Clique em 'Buscar/Atualizar Recomendações' para ver sugestões ou verifique os filtros na Página 1 caso as recomendações dependam deles e você não os ativou.")
@@ -250,7 +247,7 @@ def pagina_busca_e_avaliacoes():
 
     # ============== Pesquisar produtores =====================
     st.subheader("Buscar Produtor Específico")
-    lista_todos_produtores_nomes = filtros.get_produtores()
+    lista_todos_produtores_nomes = get_produtores()
     
     if not lista_todos_produtores_nomes:
         st.warning("Não há produtores cadastrados para busca.")
@@ -269,7 +266,7 @@ def pagina_busca_e_avaliacoes():
         # --- Avaliações do Produtor ---
         with st.container(border=True):
             st.markdown("##### Avaliações Recebidas")
-            avaliacoes_produtor = filtros.get_avaliacao(nome_produtor_selecionado) 
+            avaliacoes_produtor = get_avaliacoes_produtor(nome_produtor_selecionado)
             if avaliacoes_produtor:
                 df_avaliacoes = pd.DataFrame(avaliacoes_produtor, columns=["Usuário", "Nota (⭐)"])
                 st.dataframe(df_avaliacoes, hide_index=True, use_container_width=True)
@@ -279,7 +276,7 @@ def pagina_busca_e_avaliacoes():
         # --- Produtos Ofertados ---
         with st.container(border=True):
             st.markdown("##### Produtos Ofertados")
-            produtos_ofertados = filtros.get_produtor_produtos(nome_produtor_selecionado)
+            produtos_ofertados = get_produtor_produtos(nome_produtor_selecionado)
             if produtos_ofertados:
                 dados_produtos = []
                 for produto in produtos_ofertados:
@@ -300,7 +297,7 @@ def pagina_busca_e_avaliacoes():
     # ============== Suas Avaliações =============================
     st.divider()
     st.subheader(f"Minhas Avaliações ({st.session_state.usuario})")
-    avaliacoes_do_usuario = filtros.get_avaliacao_usuario() 
+    avaliacoes_do_usuario = get_avaliacoes_usuario()
     if avaliacoes_do_usuario:
         for produtor, nota in avaliacoes_do_usuario.items():
             st.write(f"**{produtor}**: {nota} ⭐")
