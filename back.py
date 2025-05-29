@@ -116,7 +116,8 @@ def filtro_preferencia(preferencia: list) -> list[Produtor]:
             return []
             
         # Busca todos os ids dos produtos da preferência
-        produtos_id = session.query(Produto.id).filter(Produto.nome.in_(preferencia)).all()
+        produtos_id = session.query(Produto.id).filter(
+            Produto.nome.in_(preferencia)).all()
         produtos_id = [produto[0] for produto in produtos_id]
 
         if not produtos_id:
@@ -128,7 +129,9 @@ def filtro_preferencia(preferencia: list) -> list[Produtor]:
             produtor_produto).filter(
                 produtor_produto.c.produto_id.in_(produtos_id)).group_by(
                     Produtor.id).having(
-                        func.count(produtor_produto.c.produto_id) >= len(produtos_id)).all()
+                        func.count(
+                            produtor_produto.c.produto_id
+                            ) >= len(produtos_id)).all()
 
         return produtores
     
@@ -138,7 +141,8 @@ def filtro_sazonalidade() -> list[Produtor]:
 
     with Session(engine) as session:
         # Busca os produtos disponíveis na estação atual
-        produtos = session.query(Produto).filter(Produto.sazonalidade == estacao).all()
+        produtos = session.query(Produto).filter(
+            Produto.sazonalidade == estacao).all()
 
         if not produtos:
             return []
@@ -159,10 +163,6 @@ from sklearn.neighbors import NearestNeighbors
 
 def recomendar_produtores():
     """Cria ou treina um modelo KNN para recomendações de produtores."""
-    if not usuario:
-        print("usuario padrão não definido")
-        return
-
     with Session(engine) as session:
         # Busca as informações necessárias
         query = session.query(Avaliacao.usuario_id, Avaliacao.produtor_id, Avaliacao.nota)
@@ -177,9 +177,7 @@ def recomendar_produtores():
         fill_value=0
     )
     matriz.fillna(0)
-
     # cada coluna é um produtor, cada linha é um usuario
-    # os valores são as notas, usadas para construir o KNN
 
     # Criar e treinar o modelo KNN
     modelo = NearestNeighbors(metric='cosine', n_neighbors=5, algorithm='brute')
@@ -209,10 +207,6 @@ def recomendar_produtores():
         if id is not None:
             vizinhos.append(id)
 
-    vizinhos = [id for id in vizinhos]
-
-    print(vizinhos)
-
     # ====================================================
     # Com a lista de vizinhos ordenada e feita, encontrar
     # os vizinhos, seus produtores avaliados e pegar os que
@@ -222,29 +216,34 @@ def recomendar_produtores():
     produtores = []
     with Session(engine) as session:    
         for id in vizinhos:
-            avaliacoes = session.query(Avaliacao.produtor_id).filter(Avaliacao.usuario_id == id).all()
+            avaliacoes = session.query(
+                Avaliacao.produtor_id).filter(
+                    Avaliacao.usuario_id == id).all()
             # Adicionar os ids na lista de produtores
             produtores.extend(aval[0] for aval in avaliacoes)
             
         # pegar os produtores avaliados pelo usuário
-        produtores_usuario = session.query(Avaliacao.produtor_id).filter(Avaliacao.usuario_id == usuario.id).all()
+        produtores_usuario = session.query(
+            Avaliacao.produtor_id).filter(
+                Avaliacao.usuario_id == usuario.id).all()
         produtores_usuario = [produtor[0] for produtor in produtores_usuario]
 
-        produtores_finais = [produtor for produtor in produtores if produtor not in produtores_usuario]
+        produtores_finais = [produtor for 
+                             produtor in produtores if 
+                             produtor not in produtores_usuario]
         # remover duplicados
         produtores_finais = list(set(produtores_finais))
 
-        recomendacoes = session.query(Produtor).filter(Produtor.id.in_(produtores_finais)).all()
+        recomendacoes = session.query(Produtor).filter(
+            Produtor.id.in_(produtores_finais)).all()
         # pegar apenas os com nota maior que 3
         produtores_finais = []
         for produtor in recomendacoes:
-            avg_nota = session.query(func.avg(Avaliacao.nota)).filter(Avaliacao.produtor_id == produtor.id).scalar()
+            avg_nota = session.query(func.avg(Avaliacao.nota)).filter(
+                Avaliacao.produtor_id == produtor.id).scalar()
             if avg_nota is not None and avg_nota >= 3:
                 produtores_finais.append(produtor)
 
         print(len(produtores_finais), "produtores recomendados")
         return produtores_finais[:10]  # Retorna os 10 primeiros produtores recomendados
 
-
-if __name__ == "__main__":
-    recomendar_produtores()
